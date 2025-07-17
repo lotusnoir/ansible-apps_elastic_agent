@@ -86,10 +86,12 @@
 
     - name: "Install Elastic Agent"
       become: true
-      ansible.builtin.command: |
-        echo "Y" | elastic-agent install {{ elastic_agent_install_flags }}
+      ansible.builtin.shell: |
+        set -o pipefail
+        echo "Y" | ./elastic-agent install {{ elastic_agent_install_flags }}
       args:
-        chdir: "{{ elasticsearch_temp_dir }}/{{ role_path | basename }}"
+        chdir: "{{ elastic_agent_temp_dir }}/{{ role_path | basename }}"
+        executable: /bin/bash
       no_log: true
       changed_when: false
       when: elastic_agent_install_flags | length > 0
