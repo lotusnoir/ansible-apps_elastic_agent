@@ -1,0 +1,95 @@
+---
+- name: "Get current version"
+  ansible.builtin.shell: |
+    set -o pipefail
+    /usr/bin/elastic-agent version | grep -oP 'Binary: \K[0-9.]+'
+  args:
+    executable: /bin/bash
+  changed_when: false
+  register: __installed_version
+  when: __installed_bin.stat.exists
+
+- name: "Install tasks"
+  when: (not __installed_bin.stat.exists) or (__installed_version is defined and elastic_agent_version not in __installed_version.stdout) or elastic_agent_install_force
+  block:
+    - name: "Create user"
+      ansible.builtin.include_tasks: create_user.yml
+      when: elastic_agent_user != "root"
+
+    - name: "Create dirs"
+      ansible.builtin.file:
+        path: "{{ item | safe | trim }}"
+        state: directory
+        owner: "{{ elastic_agent_user }}"
+        group: "{{ elastic_agent_group }}"
+        mode: "0755"
+      loop:
+        - "{{ elastic_agent_temp_dir }}/{{ role_path | basename }}"
+
+    - name: "Installing requirements"
+      ansible.builtin.package:
+        name:
+          - unzip
+          - tar
+        state: present
+      become: true
+      register: pkg_result
+      retries: 12
+      delay: 10
+      until: pkg_result is success
+
+    - name: "Copy local binary"
+      ansible.builtin.copy:
+        src: "{{ elastic_agent_local_files }}"
+        dest: "{{ elastic_agent_temp_dir }}/{{ elastic_agent_pkg_name }}"
+        mode: "0755"
+      when: elastic_agent_install_origin == "local"
+
+    - name: "Download binary by host"
+      ansible.builtin.get_url:
+        url: "{{ elastic_agent_dl_url }}"
+        dest: "{{ elastic_agent_temp_dir }}/{{ elastic_agent_pkg_name }}"
+        timeout: 60
+        mode: "0644"
+      when:
+        - elastic_agent_install_origin == "internet"
+        - elastic_agent_dl_executor == "host"
+
+    - name: "Download binary by localhost"
+      ansible.builtin.get_url:
+        url: "{{ elastic_agent_dl_url }}"
+        dest: "{{ elastic_agent_temp_dir }}/{{ elastic_agent_pkg_name }}"
+        timeout: 60
+        mode: "0644"
+      delegate_to: localhost
+      when:
+        - elastic_agent_install_origin == "internet"
+        - elastic_agent_dl_executor == "localhost"
+
+    - name: "Copy local binary"
+      ansible.builtin.copy:
+        src: "{{ elastic_agent_temp_dir }}/{{ elastic_agent_pkg_name }}"
+        dest: "{{ elastic_agent_temp_dir }}/{{ elastic_agent_pkg_name }}"
+        mode: "0755"
+      when:
+        - elastic_agent_install_origin == "internet"
+        - elastic_agent_dl_executor == "localhost"
+
+    - name: "Unarchive"
+      ansible.builtin.unarchive:
+        src: "{{ elastic_agent_temp_dir }}/{{ elastic_agent_pkg_name }}"
+        dest: "{{ elastic_agent_temp_dir }}/{{ role_path | basename }}"
+        extra_opts: [--strip-components=1]
+        remote_src: true
+        owner: "{{ elastic_agent_user }}"
+        group: "{{ elastic_agent_group }}"
+
+    - name: "Install Elastic Agent"
+      become: true
+      ansible.builtin.command: |
+        echo "Y" | elastic-agent install {{ elastic_agent_install_flags }}
+      args:
+        chdir: "{{ elasticsearch_temp_dir }}/{{ role_path | basename }}"
+      no_log: true
+      changed_when: false
+      when: elastic_agent_install_flags | length > 0

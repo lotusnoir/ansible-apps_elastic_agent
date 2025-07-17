@@ -1,0 +1,12 @@
+---
+- name: Reload systemd
+  ansible.builtin.systemd:
+    name: elastic_agent
+    daemon_reload: true
+  become: true
+
+- name: Restart elastic_agent
+  ansible.builtin.service:
+    name: elastic_agent
+    state: restarted
+  when: elastic_agent_start_service

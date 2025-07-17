@@ -1,0 +1,37 @@
+---
+galaxy_info:
+  author: lotusnoir
+  role_name: apps_elastic_agent
+  description: "Install and configures elastic agent"
+  license: "Apache License, Version 2.0"
+  min_ansible_version: "2.8"
+
+  platforms:
+    - name: "Ubuntu"
+      versions:
+        - "focal"
+        - "jammy"
+        - "noble"
+    - name: "Debian"
+      versions:
+        - "bookworm"
+        - "bullseye"
+    - name: "Rocky"
+      versions:
+        - "8"
+        - "9"
+    - name: "OracleLinux"
+      versions:
+        - "8"
+        - "9"
+    - name: "RedHat"
+      versions:
+        - "8"
+        - "9"
+
+  galaxy_tags:
+    - elastic
+    - agent
+    - fleet
+
+dependencies: []

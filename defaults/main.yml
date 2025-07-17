@@ -1,0 +1,31 @@
+---
+### Install
+elastic_agent_install_method: src
+elastic_agent_install_force: false
+elastic_agent_start_service: true
+
+### SRC install
+elastic_agent_group: "elastic_agent"
+elastic_agent_user: "elastic_agent"
+elastic_agent_install_origin: internet  # or internet
+elastic_agent_dl_executor: host  # or localhost
+elastic_agent_version: "9.0.3"
+elastic_agent_distrib: "linux"
+elastic_agent_arch: "x86_64"
+elastic_agent_pkg_name: "elastic-agent-{{ elastic_agent_version }}-{{ elastic_agent_distrib }}-{{ elastic_agent_arch }}.tar.gz"
+elastic_agent_dl_url: "https://artifacts.elastic.co/downloads/beats/elastic-agent/{{ elastic_agent_pkg_name }}"
+elastic_agent_temp_dir: "/tmp"
+
+# if elastic_agent_install_origin: local
+elastic_agent_local_files: "~/Downloads/shared-files/{{ role_path | basename }}/{{ elastic_agent_pkg_name }}"
+
+### Config
+# elastic_agent_management_type: "fleet"  # or standalone
+elastic_agent_install_flags: ""
+#  --fleet-server-es=http://localhost:9200
+#  --fleet-server-service-token=xxxxxxxxxxxxxxxxxxxxxxxx
+#  --fleet-server-policy=fleet-server-policy
+#  --fleet-server-port=8220
+#  --install-servers
+## Agent exemple
+#  --url=https://kibana_url:443 --enrollment-token=xxxxxxxxxxxxxxxxxxx
