@@ -33,10 +33,10 @@
           - tar
         state: present
       become: true
-      register: pkg_result
+      register: __pkg_result
       retries: 12
       delay: 10
-      until: pkg_result is success
+      until: __pkg_result is success
 
     - name: "Copy local binary"
       ansible.builtin.copy:
