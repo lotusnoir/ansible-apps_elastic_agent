@@ -9,6 +9,22 @@
   register: __installed_version
   when: __installed_bin.stat.exists
 
+- name: "Get latest tag"
+  ansible.builtin.uri:
+    url: "{{ _elastic_agent_release_api_url }}"
+  failed_when: false
+  register: __github_latest
+  when:
+    - elastic_agent_version == 'latest'
+    - elastic_agent_install_origin == "internet"
+
+- name: "Replace version fact to latest"
+  ansible.builtin.set_fact:
+    elastic_agent_version: "{{ __github_latest.json.tag_name | default(_elastic_agent_default_version) | replace('v', '') }}"
+  when:
+    - elastic_agent_version == 'latest'
+    - elastic_agent_install_origin == "internet"
+
 - name: "Install tasks"
   when: (not __installed_bin.stat.exists) or (__installed_version is defined and elastic_agent_version not in __installed_version.stdout) or elastic_agent_install_force
   block:

@@ -9,7 +9,7 @@ elastic_agent_group: "elastic_agent"
 elastic_agent_user: "elastic_agent"
 elastic_agent_install_origin: internet  # or internet
 elastic_agent_dl_executor: host  # or localhost
-elastic_agent_version: "9.0.3"
+elastic_agent_version: "9.0.3"  # or latest
 elastic_agent_distrib: "linux"
 elastic_agent_arch: "x86_64"
 elastic_agent_pkg_name: "elastic-agent-{{ elastic_agent_version }}-{{ elastic_agent_distrib }}-{{ elastic_agent_arch }}.tar.gz"
