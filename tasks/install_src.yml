@@ -104,10 +104,19 @@
       become: true
       ansible.builtin.shell: |
         set -o pipefail
-        echo "Y" | ./elastic-agent install {{ elastic_agent_install_flags }}
+        ./elastic-agent install --non-interactive {{ elastic_agent_install_flags }}
       args:
         chdir: "{{ elastic_agent_temp_dir }}/{{ role_path | basename }}"
         executable: /bin/bash
       no_log: true
       changed_when: false
-      when: elastic_agent_install_flags | length > 0
+
+    - name: "Create dirs"
+      ansible.builtin.file:
+        path: "{{ item | safe | trim }}"
+        state: directory
+        owner: "{{ elastic_agent_user }}"
+        group: "{{ elastic_agent_group }}"
+        mode: "0755"
+      loop:
+        - "{{ elastic_agent_config_path }}/inputs.d"
