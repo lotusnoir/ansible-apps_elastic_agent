@@ -3,4 +3,3 @@
   ansible.builtin.service:
     name: elastic-agent
     state: restarted
-  when: elastic_agent_start_service
