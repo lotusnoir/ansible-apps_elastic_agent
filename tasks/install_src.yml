@@ -26,7 +26,10 @@
     - elastic_agent_install_origin == "internet"
 
 - name: "Install tasks"
-  when: (not __installed_bin.stat.exists) or (__installed_version is defined and elastic_agent_version not in __installed_version.stdout) or elastic_agent_install_force
+  when:
+    - not __installed_bin.stat.exists
+    - or: elastic_agent_version not in __installed_version.stdout | default('')
+    - or: elastic_agent_install_force
   block:
     - name: "Create user"
       ansible.builtin.include_tasks: create_user.yml
@@ -78,6 +81,7 @@
         timeout: 60
         mode: "0644"
       delegate_to: localhost
+      become: false
       when:
         - elastic_agent_install_origin == "internet"
         - elastic_agent_dl_executor == "localhost"
