@@ -19,6 +19,7 @@ elastic_agent_temp_dir: "/tmp"
 elastic_agent_local_files: "~/Downloads/shared-files/{{ role_path | basename }}/{{ elastic_agent_pkg_name }}"
 
 ### Config
+elastic_agent_disable_swap: false
 elastic_agent_config_path: "/opt/Elastic/Agent"
 elastic_agent_install_flags: ""
 #  --fleet-server-es=http://localhost:9200

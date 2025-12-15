@@ -51,3 +51,20 @@
         path: "{{ elastic_agent_temp_dir }}/{{ elastic_agent_pkg_name }}"
         state: absent
       when: file_stats.results[1].stat.exists
+
+- name: "Extra systemd conf"
+  when: elastic_agent_disable_swap is defined and elastic_agent_disable_swap | bool
+  block:
+    - name: "Ensure systemd override directory exists"
+      ansible.builtin.file:
+        path: /etc/systemd/system/elastic-agent.service.d
+        state: directory
+        mode: '0755'
+
+    - name: "Disable swap via systemd override"
+      ansible.builtin.copy:
+        dest: /etc/systemd/system/elastic-agent.service.d/limits.conf
+        content: |
+          [Service]
+          MemorySwapMax=0
+        mode: '0644'
