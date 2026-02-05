@@ -124,3 +124,10 @@
         mode: "0755"
       loop:
         - "{{ elastic_agent_config_path }}/inputs.d"
+
+    - name: "Set permissions on elastic-agent.service"
+      ansible.builtin.file:
+        path: /etc/systemd/system/elastic-agent.service
+        owner: root
+        group: root
+        mode: '0644'
