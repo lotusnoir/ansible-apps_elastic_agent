@@ -116,7 +116,6 @@
       args:
         chdir: "{{ elastic_agent_temp_dir }}/{{ role_path | basename }}"
         executable: /bin/bash
-      no_log: true
       changed_when: false
 
     - name: "Create dirs"
